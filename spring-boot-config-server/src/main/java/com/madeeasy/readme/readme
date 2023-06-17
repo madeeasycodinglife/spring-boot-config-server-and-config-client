@@ -1,0 +1,105 @@
+
+//--------------------------------- Config Server ---------------------------------------------------------------------------
+
+spring:
+  application:
+    name: CONFIG-SERVER
+  cloud:
+    config:
+      server:
+        git:
+          skipSslValidation: 'true'
+          clone-on-start: 'true'
+          uri: https://github.com/madeeasycodinglife/spring-boot-config-server-location.git
+          default-label: main # The branch name or commit hash in your GitHub repository
+          search-paths:
+            - folder1 # The folder name in your GitHub repository that contains the configuration files to be loaded into the config server
+#  note :: you can write more folders in your GitHub repository
+#            search-paths:
+#              - folder1/folder2 # You can write  more folders in your GitHub repository that contains the configuration files to be loaded into the config server
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                                                   example for two folders one inside the other
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+spring:
+  application:
+    name: CONFIG-SERVER
+  cloud:
+    config:
+      server:
+        git:
+          skipSslValidation: 'true'
+          clone-on-start: 'true'
+          uri: https://github.com/madeeasycodinglife/spring-boot-config-server-location.git
+          default-label: main # The branch name or commit hash in your GitHub repository
+          search-paths:
+            - configuration/configuration
+
+
+and in my github repository structure :
+configuration
+   |--configuration
+         |--DEPARTMENT-SERVICE-prod.yml
+         |--DEPARTMENT-SERVICE.yml
+         |--application.yml
+         |--application-prod.yml
+   |--DEPARTMENT-SERVICE-test.yml
+   |--DEPARTMENT-SERVICE.yml
+   |--application-dev.yml
+   |--application.yml
+
+//--------------------------------- End of Config Server ------------------------------------------------
+
+//--------------------------------- Start of Config Client -----------------------------------------------
+
+spring:
+  application:
+    name: DEPARTMENT-SERVICE
+  profiles:
+    active: prod
+  config:
+    import: optional:configserver:http://localhost:8888
+
+in this configuration the config-client will search in config-server's search-paths: configuration/configuration and config-server
+will search in github's "configuration/configuration" folder with the name DEPARTMENT-STORE-prod.yml as the naming convention
+is "{application-name}-{profile-name}.yml" so to match  the above example the config-client will search for DEPARTMENT-STORE-prod.yml in
+the folder "configuration/configuration" because of the ::
+
+spring:
+  application:
+    name: DEPARTMENT-SERVICE ---> this is the application name
+  profiles:
+    active: prod             ---> this is the active profile name
+
+if you don't give the application name then it will load "application-prod.yml" github's "configuration/configuration" folder as ::
+
+spring:
+  profiles:
+    active: prod             ---> this is the active profile name
+
+here the default name is "application" and active profile is "prod"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Note :: if you don't provide the config-client application-name and active profile name then it will load "application.yml" in
+the github's "configuration/configuration" folder and also if you do the configuration in "application.yml" like this ::
+
+spring:
+  profiles:
+    active: prod
+
+then it ["application.yml" file in the github's "configuration/configuration" folder.] will redirect to "application-prod.yml"
+in the github's "configuration/configuration" folder which means that all the configuration will be loaded from "application-prod.yml"
+in the github's "configuration/configuration" folder. In short all you do like in local machine in "application.yml" same thing will
+happen in the github's "configuration/configuration" .
+
+//--------------------------------- End Config Client -----------------------------------------------
+
+
+//--------------------------------- Naming Convention of files in GitHub ----------------------------
+Note :: GitHub file naming convention is "{application-name}-{profile-name}.yml" ::
+where ::
+     #1) The name of the "application-name" is the name of the desired config-client application name
+     #2) The name of the "profile-name" is the name of the desired config-client active profile name
+
+//---------------------------------- End of Naming Convention of files in GitHub ----------------------
