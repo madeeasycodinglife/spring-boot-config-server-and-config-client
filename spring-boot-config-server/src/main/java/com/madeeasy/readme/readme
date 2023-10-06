@@ -63,7 +63,7 @@ spring:
     import: optional:configserver:http://localhost:8888
 
 in this configuration the config-client will search in config-server's search-paths: configuration/configuration and config-server
-will search in github's "configuration/configuration" folder with the name DEPARTMENT-STORE-prod.yml as the naming convention
+will search in github's "configuration/configuration" folder with the name DEPARTMENT-SERVICE-prod.yml as the naming convention
 is "{application-name}-{profile-name}.yml" so to match  the above example the config-client will search for DEPARTMENT-STORE-prod.yml in
 the folder "configuration/configuration" because of the ::
 
